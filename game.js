@@ -55,7 +55,7 @@ const car = {
   speed: 0,
   acceleration: 0.2,
   deceleration: -0.1,
-  maxSpeed: 10,
+  maxSpeed: 20,
   friction: 0.05,
   angle: 0,
   turnSpeed: 0.13
@@ -194,7 +194,7 @@ function update() {
   const nextX = car.x + car.speed * Math.cos(car.angle);
   const nextY = car.y + car.speed * Math.sin(car.angle);
 
-console.log("Game updated without errors.");
+  car.x = nextX;
   car.y = nextY;
 
   // Update car speed based on friction
@@ -229,7 +229,7 @@ console.log("Game updated without errors.");
   drawCar();
 
   // Request next frame
-console.log("Game updated without errors.");
+  requestAnimationFrame(update);
 }
 
 // Start the game loop
