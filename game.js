@@ -131,12 +131,16 @@ function handleCollisions(car, track) {
         const normalLength = Math.sqrt(normal.x ** 2 + normal.y ** 2);
         normal.x /= normalLength;
         normal.y /= normalLength;
+        const wallMidpoint = { x: (segment.x1 + segment.x2) / 2, y: (segment.y1 + segment.y2) / 2 };
+        const toWallMid = { x: wallMidpoint.x - car.x, y: wallMidpoint.y - car.y };
+        const dotToMid = toWallMid.x * normal.x + toWallMid.y * normal.y;
+        const pushDirection = dotToMid > 0 ? -1 : 1; // Determine push direction based on which side of the wall the car is on
         const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
         car.speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
         car.speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
         // Push the car away from the wall slightly
-        car.x -= normal.x * 5; // Displace car by 5 pixels in the direction opposite to the wall's normal
-        car.y -= normal.y * 5; // Displace car by 5 pixels in the direction opposite to the wall's normal
+        car.x += pushDirection * normal.x * 5; // Displace car by 5 pixels in the correct direction
+        car.y += pushDirection * normal.y * 5; // Displace car by 5 pixels in the correct direction
         // Update car's speed and angle based on the reflection vector
         car.speed = Math.sqrt(car.speedX ** 2 + car.speedY ** 2) * 0.4;
         car.angle = Math.atan2(car.speedY, car.speedX);
