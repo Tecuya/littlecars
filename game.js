@@ -50,54 +50,6 @@ function drawCar() {
   ctx.restore();
 }
 
-// Update game state
-function update() {
-  // Predict the next position of the car
-  const nextX = car.x + car.speed * Math.cos(car.angle);
-  const nextY = car.y + car.speed * Math.sin(car.angle);
-
-  // Check for collisions with the track
-  if (!checkCollisions({ ...car, x: nextX, y: nextY }, track)) {
-    // Update car position if no collision
-    car.x = nextX;
-    car.y = nextY;
-  } 
-
-  // Update car speed based on friction
-  if (car.speed > car.friction) {
-    car.speed -= car.friction;
-  } else if (car.speed < -car.friction) {
-    car.speed += car.friction;
-  } else {
-    car.speed = 0;
-  }
-
-  // Update car speed and angle based on input
-  if (keys.w) {
-    car.speed += car.acceleration;
-  }
-  if (keys.s) {
-    car.speed -= car.acceleration;
-  }
-  if (keys.a) {
-    car.angle -= car.turnSpeed;
-  }
-  if (keys.d) {
-    car.angle += car.turnSpeed;
-  }
-
-  // Limit car speed to maxSpeed
-  car.speed = Math.min(Math.max(car.speed, -car.maxSpeed), car.maxSpeed);
-
-  // Clear canvas and draw car and track
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawTrack(track);
-  drawCar();
-
-  // Request next frame
-  requestAnimationFrame(update);
-}
-
 // Handle keyboard input
 const keys = {
   w: false,
@@ -137,8 +89,7 @@ function lineIntersects(path, segment) {
   return d1 !== d2 && d3 !== d4;
 }
 
-// Start the game loop
-function checkCollisions(car, track) {
+function handleCollisions(car, track) {
   // Get the corners of the car
   const corners = [
     { x: car.x - car.width / 2, y: car.y - car.height / 2 },
@@ -157,7 +108,7 @@ function checkCollisions(car, track) {
         // Collision detected, adjust car speed and angle
         const collisionAngle = calculateCollisionAngle(car, segment);
         car.speed *= Math.cos(collisionAngle); // Reduce speed based on collision angle
-        car.angle += collisionAngle / 10; // Adjust angle slightly
+        car.angle = collisionAngle; // Adjust angle slightly
         return true;
       }
     }
@@ -193,7 +144,6 @@ function calculateCollisionAngle(car, segment) {
   // Return the angle in radians
   return angle;
 }
-}
 
 function drawTrack(track) {
   ctx.beginPath();
@@ -204,4 +154,52 @@ function drawTrack(track) {
   ctx.stroke();
 }
 
+
+function update() {
+
+  handleCollisions(car, track);
+
+  // Predict the next position of the car
+  const nextX = car.x + car.speed * Math.cos(car.angle);
+  const nextY = car.y + car.speed * Math.sin(car.angle);
+
+  car.x = nextX;
+  car.y = nextY;
+
+  // Update car speed based on friction
+  if (car.speed > car.friction) {
+    car.speed -= car.friction;
+  } else if (car.speed < -car.friction) {
+    car.speed += car.friction;
+  } else {
+    car.speed = 0;
+  }
+
+  // Update car speed and angle based on input
+  if (keys.w) {
+    car.speed += car.acceleration;
+  }
+  if (keys.s) {
+    car.speed -= car.acceleration;
+  }
+  if (keys.a) {
+    car.angle -= car.turnSpeed;
+  }
+  if (keys.d) {
+    car.angle += car.turnSpeed;
+  }
+
+  // Limit car speed to maxSpeed
+  car.speed = Math.min(Math.max(car.speed, -car.maxSpeed), car.maxSpeed);
+
+  // Clear canvas and draw car and track
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawTrack(track);
+  drawCar();
+
+  // Request next frame
+  requestAnimationFrame(update);
+}
+
+// Start the game loop
 update();
