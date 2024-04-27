@@ -105,10 +105,17 @@ function handleCollisions(car, track) {
       const corner = corners[j];
       // Check for intersection with the path from the car's current position to the corner
       if (lineIntersects({ x1: car.x, y1: car.y, x2: corner.x, y2: corner.y }, segment)) {
-        // Collision detected, adjust car speed and angle
-        const collisionAngle = calculateCollisionAngle(car, segment);
-        car.speed *= Math.cos(collisionAngle); // Reduce speed based on collision angle
-        car.angle = collisionAngle; // Adjust angle slightly
+        // Collision detected, calculate the reflection vector
+        const normal = { x: -(segment.y2 - segment.y1), y: segment.x2 - segment.x1 };
+        const normalLength = Math.sqrt(normal.x ** 2 + normal.y ** 2);
+        normal.x /= normalLength;
+        normal.y /= normalLength;
+        const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
+        car.speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
+        car.speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
+        // Update car's speed and angle based on the reflection vector
+        car.speed = Math.sqrt(car.speedX ** 2 + car.speedY ** 2);
+        car.angle = Math.atan2(car.speedY, car.speedX);
         return true;
       }
     }
