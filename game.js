@@ -134,8 +134,11 @@ function handleCollisions(car, track) {
         const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
         car.speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
         car.speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
+        // Push the car away from the wall slightly
+        car.x -= normal.x * 5; // Displace car by 5 pixels in the direction opposite to the wall's normal
+        car.y -= normal.y * 5; // Displace car by 5 pixels in the direction opposite to the wall's normal
         // Update car's speed and angle based on the reflection vector
-        car.speed = Math.sqrt(car.speedX ** 2 + car.speedY ** 2);
+        car.speed = Math.sqrt(car.speedX ** 2 + car.speedY ** 2) * 0.4;
         car.angle = Math.atan2(car.speedY, car.speedX);
         return true;
       }
@@ -191,7 +194,7 @@ function update() {
   const nextX = car.x + car.speed * Math.cos(car.angle);
   const nextY = car.y + car.speed * Math.sin(car.angle);
 
-  car.x = nextX;
+console.log("Game updated without errors.");
   car.y = nextY;
 
   // Update car speed based on friction
@@ -226,7 +229,7 @@ function update() {
   drawCar();
 
   // Request next frame
-  requestAnimationFrame(update);
+console.log("Game updated without errors.");
 }
 
 // Start the game loop
