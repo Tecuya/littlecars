@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Little Cars Game</title>
     <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
         canvas {
-            border: 1px solid black;
             display: block;
-            margin: 0 auto;
-            background: #eee;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas"></canvas>
     <script src="game.js"></script>
 </body>
 </html>

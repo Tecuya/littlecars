@@ -6,37 +6,49 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-
-function defineTrack() {
-  // Define a circuit track
-  return [
-    // Start straight
-    { x1: 50, y1: canvas.height / 2, x2: 150, y2: canvas.height / 2 },
-    // First curve
-    { x1: 150, y1: canvas.height / 2, x2: 250, y2: canvas.height / 2 - 100 },
-    // Second straight
-    { x1: 250, y1: canvas.height / 2 - 100, x2: 350, y2: canvas.height / 2 - 100 },
-    // Second curve
-    { x1: 350, y1: canvas.height / 2 - 100, x2: 450, y2: canvas.height / 2 },
-    // Third straight
-    { x1: 450, y1: canvas.height / 2, x2: 550, y2: canvas.height / 2 },
-    // Third curve
-    { x1: 550, y1: canvas.height / 2, x2: 650, y2: canvas.height / 2 + 100 },
-    // Fourth straight
-    { x1: 650, y1: canvas.height / 2 + 100, x2: 750, y2: canvas.height / 2 + 100 },
-    // Fourth curve to close the loop
-    { x1: 750, y1: canvas.height / 2 + 100, x2: 50, y2: canvas.height / 2 }
-  ];
-}
+var trackdefs = {
+  rectangle: {
+    segments: [
+      [0.01, 0.01, 0.99, 0.01],
+      [0.99, 0.01, 0.99, 0.99],
+      [0.99, 0.99, 0.01, 0.99],
+      [0.01, 0.99, 0.01, 0.01],
+      [0.33, 0.33, 0.66, 0.33],
+      [0.66, 0.33, 0.66, 0.66],
+      [0.66, 0.66, 0.33, 0.66],
+      [0.33, 0.66, 0.33, 0.33],
+    ],
+    start: [0.22, 0.22]
+  }
 }
 
-// Define the track
-const track = defineTrack();
+var tracks = {};
+
+for(const trackName in trackdefs) {
+  tracks[trackName] = [];
+  trackdefs[trackName].segments.forEach((segment) => {
+    tracks[trackName].push(
+      {
+        x1: segment[0] * canvas.width,
+        y1: segment[1] * canvas.height,
+        x2: segment[2] * canvas.width,
+        y2: segment[3] * canvas.height
+      }
+    );
+  });
+}
+
+// Choose the track
+const track = tracks.rectangle;
+const car_start = [
+  trackdefs.rectangle.start[0] * canvas.width,
+  trackdefs.rectangle.start[1] * canvas.height
+];
 
 // Car properties
 const car = {
-  x: canvas.width / 2,
-  y: canvas.height / 2,
+  x: car_start[0],
+  y: car_start[1],
   width: 50,
   height: 30,
   color: 'blue',
