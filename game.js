@@ -8,17 +8,26 @@ canvas.height = window.innerHeight;
 
 
 function defineTrack() {
-  // Define a simple rectangular track for now
+  // Define a circuit track
   return [
-    // Top edge
-    { x1: 50, y1: 50, x2: canvas.width - 50, y2: 50 },
-    // Right edge
-    { x1: canvas.width - 50, y1: 50, x2: canvas.width - 50, y2: canvas.height - 50 },
-    // Bottom edge
-    { x1: 50, y1: canvas.height - 50, x2: canvas.width - 50, y2: canvas.height - 50 },
-    // Left edge
-    { x1: 50, y1: 50, x2: 50, y2: canvas.height - 50 }
+    // Start straight
+    { x1: 50, y1: canvas.height / 2, x2: 150, y2: canvas.height / 2 },
+    // First curve
+    { x1: 150, y1: canvas.height / 2, x2: 250, y2: canvas.height / 2 - 100 },
+    // Second straight
+    { x1: 250, y1: canvas.height / 2 - 100, x2: 350, y2: canvas.height / 2 - 100 },
+    // Second curve
+    { x1: 350, y1: canvas.height / 2 - 100, x2: 450, y2: canvas.height / 2 },
+    // Third straight
+    { x1: 450, y1: canvas.height / 2, x2: 550, y2: canvas.height / 2 },
+    // Third curve
+    { x1: 550, y1: canvas.height / 2, x2: 650, y2: canvas.height / 2 + 100 },
+    // Fourth straight
+    { x1: 650, y1: canvas.height / 2 + 100, x2: 750, y2: canvas.height / 2 + 100 },
+    // Fourth curve to close the loop
+    { x1: 750, y1: canvas.height / 2 + 100, x2: 50, y2: canvas.height / 2 }
   ];
+}
 }
 
 // Define the track
