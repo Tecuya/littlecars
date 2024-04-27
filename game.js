@@ -154,12 +154,45 @@ function checkCollisions(car, track) {
       const corner = corners[j];
       // Check for intersection with the path from the car's current position to the corner
       if (lineIntersects({ x1: car.x, y1: car.y, x2: corner.x, y2: corner.y }, segment)) {
-        return true; // Collision detected
+        // Collision detected, adjust car speed and angle
+        const collisionAngle = calculateCollisionAngle(car, segment);
+        car.speed *= Math.cos(collisionAngle); // Reduce speed based on collision angle
+        car.angle += collisionAngle / 10; // Adjust angle slightly
+        return true;
       }
     }
   }
 
   return false; // No collision detected
+}
+
+// Helper function to calculate the angle of collision
+function calculateCollisionAngle(car, segment) {
+  // Calculate the normalized direction vector of the car
+  const carDirection = {
+    x: Math.cos(car.angle),
+    y: Math.sin(car.angle)
+  };
+
+  // Calculate the normalized direction vector of the wall segment
+  const segmentDirection = {
+    x: segment.x2 - segment.x1,
+    y: segment.y2 - segment.y1
+  };
+  const segmentLength = Math.sqrt(segmentDirection.x ** 2 + segmentDirection.y ** 2);
+  segmentDirection.x /= segmentLength;
+  segmentDirection.y /= segmentLength;
+
+  // Calculate the dot product of the direction vectors
+  const dot = carDirection.x * segmentDirection.x + carDirection.y * segmentDirection.y;
+
+  // Calculate the angle between the car's direction and the wall segment
+  // The dot product gives us cos(theta), so we use Math.acos to get the angle in radians
+  const angle = Math.acos(dot);
+
+  // Return the angle in radians
+  return angle;
+}
 }
 
 function drawTrack(track) {
