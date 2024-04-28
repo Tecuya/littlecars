@@ -208,6 +208,9 @@ function moveCar(car, track) {
       return;
     }
   }
+
+  // do something here
+  console.log('stuck');
 }
 
 function drawTrack(track) {
