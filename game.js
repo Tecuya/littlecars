@@ -188,27 +188,23 @@ function moveCar(car, track) {
     alert('rejection has failed');
   }
 
-  // set the new car angle
-  const normal = { x: -(segment.y2 - segment.y1), y: segment.x2 - segment.x1 };
-  const normalLength = Math.sqrt(normal.x ** 2 + normal.y ** 2);
-  normal.x /= normalLength;
-  normal.y /= normalLength;
-  const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
-  const speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
-  const speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
-  car.angle = Math.atan2(speedY, speedX);
+    // set the new car angle based on whether the car is moving forward or backward
+    const movementDirection = car.speed >= 0 ? 1 : -1;
+    const normal = { x: -(segment.y2 - segment.y1), y: segment.x2 - segment.x1 };
+    const normalLength = Math.sqrt(normal.x ** 2 + normal.y ** 2);
+    normal.x /= normalLength;
+    normal.y /= normalLength;
+    const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
+    const speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
+    const speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
+    car.angle = Math.atan2(speedY, speedX) + Math.PI * movementDirection;
 
-  // check for rotation causing collision and if it does, unrotate and stop
-  const segment2 = carCollidesTrack(car, track);
-  if(segment2 != null) {
-    car.angle = lastAngle;
-    car.speed = 0;
-  }
-
-  const segment5 = carCollidesTrack(car, track);
-  if(segment5 != null) {
-    alert('left collision');
-  }
+    // check for rotation causing collision and if it does, unrotate and stop
+    const segment2 = carCollidesTrack(car, track);
+    if(segment2 != null) {
+        car.angle = lastAngle;
+        car.speed = 0;
+    }
 
 }
 
