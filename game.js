@@ -150,6 +150,7 @@ function carCollidesSegments(car, track) {
 
 function moveCar(car, track) {
 
+  // let us know if there was a inter-frame collision (shouldnt be)
   const collidingSegments = carCollidesSegments(car, track);
   if(collidingSegments.length > 0) {
     alert('precollide');
@@ -170,9 +171,10 @@ function moveCar(car, track) {
   const nextAngle = car.angle + angleAdditive;
   const nextX = car.x + car.speed * Math.cos(car.angle);
   const nextY = car.y + car.speed * Math.sin(car.angle);
-  
-  const newCollidingSegments = carCollidesSegments({...car, x: nextX, y: nextY, angle: nextAngle}, track);
 
+  // check the next step and apply it if it doesnt collide
+  const newCollidingSegments = carCollidesSegments(
+    {...car, x: nextX, y: nextY, angle: nextAngle}, track);
   if(newCollidingSegments.length == 0) {
     car.x = nextX;
     car.y = nextY;
@@ -180,11 +182,7 @@ function moveCar(car, track) {
     return;
   }
 
-  const segment4 = carCollidesSegments(car, track);
-  if(segment4.length > 0) {
-    alert('rejection has failed');
-  }
-
+  // find good reflection angles
   var angles = [];
   newCollidingSegments.forEach((segment) => {
     const backwardsCompensation = car.speed >= 0 ? 0 : Math.PI * -1;
@@ -198,7 +196,7 @@ function moveCar(car, track) {
     angles.push(Math.atan2(speedY, speedX) + backwardsCompensation);
   });
 
-  // go with any valid proposed angle
+  // go with any proposed angle that produces no collision
   for(var i=0;i<angles.length;i++) {
     const nextX = car.x + car.speed * Math.cos(angles[i]);
     const nextY = car.y + car.speed * Math.sin(angles[i]);
@@ -208,16 +206,18 @@ function moveCar(car, track) {
       car.x = nextX;
       car.y = nextY;
       return;
-    } 
+    }
   }
 
-  const segments2 = carCollidesSegments(car, track);
-  if(segments2.length > 0) {
+  // let us know if there are any screwy collisions
+  const segments7 = carCollidesSegments(car, track);
+  if(segments7.length > 0) {
     alert('oops');
     car.angle = lastAngle;
     car.speed = 0;
   }
 
+  // sanity check to make sure there are no inter-frame collisions
   const segments5 = carCollidesSegments(car, track);
   if(segments5.length > 0) {
     alert('left collision');
