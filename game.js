@@ -209,7 +209,33 @@ function moveCar(car, track) {
     }
   }
 
-  // do something here
+  // Implementing binary search to find a valid angle
+  let lowerBound = 0;
+  let upperBound = 2 * Math.PI;
+  let validAngle = null;
+  while (lowerBound <= upperBound) {
+    const middleAngle = (lowerBound + upperBound) / 2;
+    const nextX = car.x + car.speed * Math.cos(middleAngle);
+    const nextY = car.y + car.speed * Math.sin(middleAngle);
+    if (carCollidesSegments({...car, angle: middleAngle, x: nextX, y: nextY}, track).length == 0) {
+      validAngle = middleAngle;
+      break;
+    } else {
+      // If there's a collision, adjust the search bounds
+      if (carCollidesSegments({...car, angle: lowerBound, x: car.x + car.speed * Math.cos(lowerBound), y: car.y + car.speed * Math.sin(lowerBound)}, track).length == 0) {
+        upperBound = middleAngle;
+      } else {
+        lowerBound = middleAngle;
+      }
+    }
+  }
+  if (validAngle !== null) {
+    car.angle = validAngle;
+    car.x += car.speed * Math.cos(validAngle);
+    car.y += car.speed * Math.sin(validAngle);
+  } else {
+    console.log('No valid angle found, car remains stuck');
+  }
   console.log('stuck');
 }
 
