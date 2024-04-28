@@ -76,6 +76,8 @@ function drawCars() {
   });
 }
 
+const average = arr => arr.reduce((a, b) => a + b) / arr.length;
+
 function getCarCorners(car) {
   // Calculate the rotated corners of the car
   const cosAngle = Math.cos(car.angle);
@@ -145,7 +147,6 @@ function carCollidesSegments(car, track) {
   }
   return collidingSegments;
 }
-}
 
 function moveCar(car, track) {
 
@@ -189,25 +190,27 @@ function moveCar(car, track) {
   if(segment4.length > 0) {
     alert('rejection has failed');
   }
-}
-  if(segment4 != null) {
-    alert('rejection has failed');
-  }
 
-  // set the new car angle based on whether the car is moving forward or backward
-  const backwardsCompensation = car.speed >= 0 ? 0 : Math.PI * -1;
-  const normal = { x: -(segment.y2 - segment.y1), y: segment.x2 - segment.x1 };
-  const normalLength = Math.sqrt(normal.x ** 2 + normal.y ** 2);
-  normal.x /= normalLength;
-  normal.y /= normalLength;
-  const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
-  const speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
-  const speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
-  car.angle = Math.atan2(speedY, speedX) + backwardsCompensation;
+  var angles = [];
+  newCollidingSegments.forEach((segment) => {
+    const backwardsCompensation = car.speed >= 0 ? 0 : Math.PI * -1;
+    const normal = { x: -(segment.y2 - segment.y1), y: segment.x2 - segment.x1 };
+    const normalLength = Math.sqrt(normal.x ** 2 + normal.y ** 2);
+    normal.x /= normalLength;
+    normal.y /= normalLength;
+    const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
+    const speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
+    const speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
+    angles.push(Math.atan2(speedY, speedX) + backwardsCompensation);
+  });
+
+  // TODO this is not right
+  car.angle = average(angles);
 
   // check for rotation causing collision and if it does, unrotate and stop
   const segments2 = carCollidesSegments(car, track);
   if(segments2.length > 0) {
+    alert('oops');
     car.angle = lastAngle;
     car.speed = 0;
   }
@@ -217,34 +220,6 @@ function moveCar(car, track) {
     alert('left collision');
   }
 
-}
-
-// Helper function to calculate the angle of collision
-function calculateCollisionAngle(car, segment) {
-  // Calculate the normalized direction vector of the car
-  const carDirection = {
-    x: Math.cos(car.angle),
-    y: Math.sin(car.angle)
-  };
-
-  // Calculate the normalized direction vector of the wall segment
-  const segmentDirection = {
-    x: segment.x2 - segment.x1,
-    y: segment.y2 - segment.y1
-  };
-  const segmentLength = Math.sqrt(segmentDirection.x ** 2 + segmentDirection.y ** 2);
-  segmentDirection.x /= segmentLength;
-  segmentDirection.y /= segmentLength;
-
-  // Calculate the dot product of the direction vectors
-  const dot = carDirection.x * segmentDirection.x + carDirection.y * segmentDirection.y;
-
-  // Calculate the angle between the car's direction and the wall segment
-  // The dot product gives us cos(theta), so we use Math.acos to get the angle in radians
-  const angle = Math.acos(dot);
-
-  // Return the angle in radians
-  return angle;
 }
 
 function drawTrack(track) {
