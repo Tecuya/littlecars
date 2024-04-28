@@ -47,29 +47,34 @@ const car_start = [
 ];
 
 // Car properties
-const car = {
-  x: car_start[0],
-  y: car_start[1],
-  width: 50,
-  height: 30,
-  color: 'blue',
-  speed: 0,
-  acceleration: 0.2,
-  deceleration: -0.1,
-  maxSpeed: 20,
-  friction: 0.00005,
-  angle: 0,
-  turnSpeed: 0.13
-};
+const cars = [];
+for (let i = 0; i < 5; i++) {
+  cars.push({
+    x: car_start[0] + (Math.random() * 10 - 5),
+    y: car_start[1] + (Math.random() * 10 - 5),
+    width: 50,
+    height: 30,
+    color: 'blue',
+    speed: 0,
+    acceleration: 0.2,
+    deceleration: -0.1,
+    maxSpeed: 20,
+    friction: 0.00005,
+    angle: 0,
+    turnSpeed: 0.13
+  });
+}
 
-// Draw the car
-function drawCar() {
-  ctx.save();
-  ctx.translate(car.x, car.y);
-  ctx.rotate(car.angle);
-  ctx.fillStyle = car.color;
-  ctx.fillRect(-car.width / 2, -car.height / 2, car.width, car.height);
-  ctx.restore();
+function drawCars() {
+  cars.forEach(car => {
+    ctx.save();
+    ctx.translate(car.x, car.y);
+    ctx.rotate(car.angle);
+    ctx.fillStyle = car.color;
+    ctx.fillRect(-car.width / 2, -car.height / 2, car.width, car.height);
+    ctx.restore();
+  });
+}
 }
 
 // Handle keyboard input
@@ -205,47 +210,47 @@ function drawTrack(track) {
 
 
 function update() {
+  cars.forEach(car => {
+    if(!handleCollisions(car, track)) {
+      // Predict the next position of the car
+      const nextX = car.x + car.speed * Math.cos(car.angle);
+      const nextY = car.y + car.speed * Math.sin(car.angle);
 
-  if(!handleCollisions(car, track)) {
+      car.x = nextX;
+      car.y = nextY;
+    }
 
-    // Predict the next position of the car
-    const nextX = car.x + car.speed * Math.cos(car.angle);
-    const nextY = car.y + car.speed * Math.sin(car.angle);
+    // Update car speed based on friction
+    if (car.speed > car.friction) {
+      car.speed -= car.friction;
+    } else if (car.speed < -car.friction) {
+      car.speed += car.friction;
+    } else {
+      car.speed = 0;
+    }
 
-    car.x = nextX;
-    car.y = nextY;
-  }
+    // Update car speed and angle based on input
+    if (keys.w) {
+      car.speed += car.acceleration;
+    }
+    if (keys.s) {
+      car.speed -= car.acceleration;
+    }
+    if (keys.a) {
+      car.angle -= car.turnSpeed;
+    }
+    if (keys.d) {
+      car.angle += car.turnSpeed;
+    }
 
-  // Update car speed based on friction
-  if (car.speed > car.friction) {
-    car.speed -= car.friction;
-  } else if (car.speed < -car.friction) {
-    car.speed += car.friction;
-  } else {
-    car.speed = 0;
-  }
+    // Limit car speed to maxSpeed
+    car.speed = Math.min(Math.max(car.speed, -car.maxSpeed), car.maxSpeed);
+  });
 
-  // Update car speed and angle based on input
-  if (keys.w) {
-    car.speed += car.acceleration;
-  }
-  if (keys.s) {
-    car.speed -= car.acceleration;
-  }
-  if (keys.a) {
-    car.angle -= car.turnSpeed;
-  }
-  if (keys.d) {
-    car.angle += car.turnSpeed;
-  }
-
-  // Limit car speed to maxSpeed
-  car.speed = Math.min(Math.max(car.speed, -car.maxSpeed), car.maxSpeed);
-
-  // Clear canvas and draw car and track
+  // Clear canvas and draw cars and track
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawTrack(track);
-  drawCar();
+  drawCars();
 
   // Request next frame
   requestAnimationFrame(update);
