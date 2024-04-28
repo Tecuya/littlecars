@@ -130,25 +130,27 @@ function lineIntersects(path, segment) {
   return d1 !== d2 && d3 !== d4;
 }
 
-function carCollidesTrack(car, track) {
+function carCollidesSegments(car, track) {
+  const collidingSegments = [];
   for (let i = 0; i < track.length; i++) {
     const segment = track[i];
     const corners = getCarCorners(car);
     if(
       lineIntersects({ x1: corners[0].x, y1: corners[0].y, x2: corners[1].x, y2: corners[1].y }, segment) ||
-        lineIntersects({ x1: corners[1].x, y1: corners[1].y, x2: corners[2].x, y2: corners[2].y }, segment) ||
-        lineIntersects({ x1: corners[2].x, y1: corners[2].y, x2: corners[3].x, y2: corners[3].y }, segment) ||
-        lineIntersects({ x1: corners[3].x, y1: corners[3].y, x2: corners[0].x, y2: corners[0].y }, segment)) {
-      return segment;
+      lineIntersects({ x1: corners[1].x, y1: corners[1].y, x2: corners[2].x, y2: corners[2].y }, segment) ||
+      lineIntersects({ x1: corners[2].x, y1: corners[2].y, x2: corners[3].x, y2: corners[3].y }, segment) ||
+      lineIntersects({ x1: corners[3].x, y1: corners[3].y, x2: corners[0].x, y2: corners[0].y }, segment)) {
+      collidingSegments.push(segment);
     }
   }
-  return null;
+  return collidingSegments;
+}
 }
 
 function moveCar(car, track) {
 
-  const segment3 = carCollidesTrack(car, track);
-  if(segment3 != null) {
+  const collidingSegments = carCollidesSegments(car, track);
+  if(collidingSegments.length > 0) {
     alert('precollide');
   }
 
@@ -160,7 +162,7 @@ function moveCar(car, track) {
     angleAdditive = car.turnSpeed;
   }
 
-  // store old position and tenatively set new one
+  // store old position and tentatively set new one
   const lastX = car.x;
   const lastY = car.y;
   const lastAngle = car.angle;
@@ -169,12 +171,12 @@ function moveCar(car, track) {
   car.x += car.speed * Math.cos(car.angle);
   car.y += car.speed * Math.sin(car.angle);
 
-  // find a segment it collides with
-  const segment = carCollidesTrack(car, track);
+  // find segments it collides with
+  const newCollidingSegments = carCollidesSegments(car, track);
 
-  // it moved and it doesnt collide with a segment. the movement is
+  // it moved and it doesn't collide with a segment. the movement is
   // accepted
-  if(segment == null) {
+  if(newCollidingSegments.length == 0) {
     return;
   }
 
@@ -183,7 +185,11 @@ function moveCar(car, track) {
   car.x = lastX;
   car.y = lastY;
 
-  const segment4 = carCollidesTrack(car, track);
+  const segment4 = carCollidesSegments(car, track);
+  if(segment4.length > 0) {
+    alert('rejection has failed');
+  }
+}
   if(segment4 != null) {
     alert('rejection has failed');
   }
@@ -200,14 +206,14 @@ function moveCar(car, track) {
   car.angle = Math.atan2(speedY, speedX) + backwardsCompensation;
 
   // check for rotation causing collision and if it does, unrotate and stop
-  const segment2 = carCollidesTrack(car, track);
-  if(segment2 != null) {
+  const segments2 = carCollidesSegments(car, track);
+  if(segments2.length > 0) {
     car.angle = lastAngle;
     car.speed = 0;
   }
 
-  const segment5 = carCollidesTrack(car, track);
-  if(segment5 != null) {
+  const segments5 = carCollidesSegments(car, track);
+  if(segments5.length > 0) {
     alert('left collision');
   }
 
