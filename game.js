@@ -210,6 +210,7 @@ function moveCar(car, track) {
   }
 
   // Implementing binary search to find a valid angle
+  console.log('unsticking a car');
   let lowerBound = 0;
   let upperBound = 2 * Math.PI;
   let validAngle = null;
@@ -236,7 +237,6 @@ function moveCar(car, track) {
   } else {
     console.log('No valid angle found, car remains stuck');
   }
-  console.log('stuck');
 }
 
 function drawTrack(track) {
