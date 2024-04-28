@@ -204,29 +204,13 @@ function moveCar(car, track) {
     angles.push(Math.atan2(speedY, speedX) + backwardsCompensation);
   });
 
-  // Calculate the average normal vector
-  let avgNormal = { x: 0, y: 0 };
-  newCollidingSegments.forEach((segment) => {
-    const normal = { x: -(segment.y2 - segment.y1), y: segment.x2 - segment.x1 };
-    const normalLength = Math.sqrt(normal.x ** 2 + normal.y ** 2);
-    avgNormal.x += normal.x / normalLength;
-    avgNormal.y += normal.y / normalLength;
-  });
-  const avgNormalLength = Math.sqrt(avgNormal.x ** 2 + avgNormal.y ** 2);
-  avgNormal.x /= avgNormalLength;
-  avgNormal.y /= avgNormalLength;
+  // TODO this is not right
+  car.angle = average(angles);
 
-  // Calculate the reflection vector based on the average normal
-  const dotProduct = car.speed * Math.cos(car.angle) * avgNormal.x + car.speed * Math.sin(car.angle) * avgNormal.y;
-  const reflection = {
-    x: car.speed * Math.cos(car.angle) - 2 * dotProduct * avgNormal.x,
-    y: car.speed * Math.sin(car.angle) - 2 * dotProduct * avgNormal.y
-  };
-  car.angle = Math.atan2(reflection.y, reflection.x);
-
-  // Check for rotation causing collision and if it does, unrotate and stop
+  // check for rotation causing collision and if it does, unrotate and stop
   const segments2 = carCollidesSegments(car, track);
   if(segments2.length > 0) {
+    alert('oops');
     car.angle = lastAngle;
     car.speed = 0;
   }
