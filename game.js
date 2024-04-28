@@ -208,21 +208,6 @@ function moveCar(car, track) {
       return;
     }
   }
-
-  // let us know if there are any screwy collisions
-  const segments7 = carCollidesSegments(car, track);
-  if(segments7.length > 0) {
-    alert('oops');
-    car.angle = lastAngle;
-    car.speed = 0;
-  }
-
-  // sanity check to make sure there are no inter-frame collisions
-  const segments5 = carCollidesSegments(car, track);
-  if(segments5.length > 0) {
-    alert('left collision');
-  }
-
 }
 
 function drawTrack(track) {
