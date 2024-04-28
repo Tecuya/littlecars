@@ -48,7 +48,7 @@ const car_start = [
 
 // Car properties
 const cars = [];
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 500; i++) {
   cars.push({
     x: car_start[0] + (Math.random() * 10 - 5),
     y: car_start[1] + (Math.random() * 10 - 5),
@@ -58,7 +58,7 @@ for (let i = 0; i < 5; i++) {
     speed: 0,
     acceleration: 0.2,
     deceleration: -0.1,
-    maxSpeed: 20,
+    maxSpeed: 10,
     friction: 0.00005,
     angle: 0,
     turnSpeed: 0.13
@@ -75,6 +75,20 @@ function drawCars() {
     ctx.restore();
   });
 }
+
+function getCarCorners(car) {
+  // Calculate the rotated corners of the car
+  const cosAngle = Math.cos(car.angle);
+  const sinAngle = Math.sin(car.angle);
+  const halfWidth = car.width / 2;
+  const halfHeight = car.height / 2;
+  const corners = [
+    { x: car.x + cosAngle * -halfWidth + sinAngle * -halfHeight, y: car.y + sinAngle * -halfWidth - cosAngle * -halfHeight },
+    { x: car.x + cosAngle * halfWidth + sinAngle * -halfHeight, y: car.y + sinAngle * halfWidth - cosAngle * -halfHeight },
+    { x: car.x + cosAngle * halfWidth + sinAngle * halfHeight, y: car.y + sinAngle * halfWidth - cosAngle * halfHeight },
+    { x: car.x + cosAngle * -halfWidth + sinAngle * halfHeight, y: car.y + sinAngle * -halfWidth - cosAngle * halfHeight }
+  ];
+  return corners;
 }
 
 // Handle keyboard input
@@ -116,59 +130,86 @@ function lineIntersects(path, segment) {
   return d1 !== d2 && d3 !== d4;
 }
 
-function handleCollisions(car, track) {
-  // Get the corners of the car
-        // Calculate the rotated corners of the car
-        const cosAngle = Math.cos(car.angle);
-        const sinAngle = Math.sin(car.angle);
-        const halfWidth = car.width / 2;
-        const halfHeight = car.height / 2;
-        const corners = [
-            { x: car.x + cosAngle * -halfWidth + sinAngle * -halfHeight, y: car.y + sinAngle * -halfWidth - cosAngle * -halfHeight },
-            { x: car.x + cosAngle * halfWidth + sinAngle * -halfHeight, y: car.y + sinAngle * halfWidth - cosAngle * -halfHeight },
-            { x: car.x + cosAngle * halfWidth + sinAngle * halfHeight, y: car.y + sinAngle * halfWidth - cosAngle * halfHeight },
-            { x: car.x + cosAngle * -halfWidth + sinAngle * halfHeight, y: car.y + sinAngle * -halfWidth - cosAngle * halfHeight }
-        ];
-
-  // Check each track segment for collisions with car corners
+function carCollidesTrack(car, track) {
   for (let i = 0; i < track.length; i++) {
     const segment = track[i];
-    for (let j = 0; j < corners.length; j++) {
-      const corner = corners[j];
-      // Check for intersection with the path from the car's current position to the corner
-      if (lineIntersects({ x1: car.x, y1: car.y, x2: corner.x, y2: corner.y }, segment)) {
-        // Collision detected, calculate the reflection vector
-        const normal = { x: -(segment.y2 - segment.y1), y: segment.x2 - segment.x1 };
-        const normalLength = Math.sqrt(normal.x ** 2 + normal.y ** 2);
-        normal.x /= normalLength;
-        normal.y /= normalLength;
-        const wallMidpoint = { x: (segment.x1 + segment.x2) / 2, y: (segment.y1 + segment.y2) / 2 };
-        const toWallMid = { x: wallMidpoint.x - car.x, y: wallMidpoint.y - car.y };
-        const dotToMid = toWallMid.x * normal.x + toWallMid.y * normal.y;
-        const pushDirection = dotToMid > 0 ? -1 : 1; // Determine push direction based on which side of the wall the car is on
-        const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
-        car.speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
-        car.speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
-        car.speed = Math.sqrt(car.speedX ** 2 + car.speedY ** 2);
-        car.angle = Math.atan2(car.speedY, car.speedX);
-
-        const nextX = car.x + car.speed * Math.cos(car.angle);
-        const nextY = car.y + car.speed * Math.sin(car.angle);
-
-        car.x = nextX;
-        car.y = nextY;
-        
-        // Push the car away from the wall slightly
-        car.x += pushDirection * normal.x * 5; // Displace car by 5 pixels in the correct direction
-        car.y += pushDirection * normal.y * 5; // Displace car by 5 pixels in the correct direction
-        
-        // Update car's speed and angle based on the reflection vector
-        return true;
-      }
+    const corners = getCarCorners(car);
+    if(
+      lineIntersects({ x1: corners[0].x, y1: corners[0].y, x2: corners[1].x, y2: corners[1].y }, segment) ||
+        lineIntersects({ x1: corners[1].x, y1: corners[1].y, x2: corners[2].x, y2: corners[2].y }, segment) ||
+        lineIntersects({ x1: corners[2].x, y1: corners[2].y, x2: corners[3].x, y2: corners[3].y }, segment) ||
+        lineIntersects({ x1: corners[3].x, y1: corners[3].y, x2: corners[0].x, y2: corners[0].y }, segment)) {
+      return segment;
     }
   }
+  return null;
+}
 
-  return false; // No collision detected
+function moveCar(car, track) {
+
+  const segment3 = carCollidesTrack(car, track);
+  if(segment3 != null) {
+    alert('precollide');
+  }
+
+  var angleAdditive = 0;
+  if(keys.a) {
+    angleAdditive = car.turnSpeed * -1;
+  }
+  if(keys.d) {
+    angleAdditive = car.turnSpeed;
+  }
+
+  // store old position and tenatively set new one
+  const lastX = car.x;
+  const lastY = car.y;
+  const lastAngle = car.angle;
+
+  car.angle += angleAdditive;
+  car.x += car.speed * Math.cos(car.angle);
+  car.y += car.speed * Math.sin(car.angle);
+
+  // find a segment it collides with
+  const segment = carCollidesTrack(car, track);
+
+  // it moved and it doesnt collide with a segment. the movement is
+  // accepted
+  if(segment == null) {
+    return;
+  }
+
+  // movement rejected
+  car.angle = lastAngle;
+  car.x = lastX;
+  car.y = lastY;
+
+  const segment4 = carCollidesTrack(car, track);
+  if(segment4 != null) {
+    alert('rejection has failed');
+  }
+
+  // set the new car angle
+  const normal = { x: -(segment.y2 - segment.y1), y: segment.x2 - segment.x1 };
+  const normalLength = Math.sqrt(normal.x ** 2 + normal.y ** 2);
+  normal.x /= normalLength;
+  normal.y /= normalLength;
+  const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
+  const speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
+  const speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
+  car.angle = Math.atan2(speedY, speedX);
+
+  // check for rotation causing collision and if it does, unrotate and stop
+  const segment2 = carCollidesTrack(car, track);
+  if(segment2 != null) {
+    car.angle = lastAngle;
+    car.speed = 0;
+  }
+
+  const segment5 = carCollidesTrack(car, track);
+  if(segment5 != null) {
+    alert('left collision');
+  }
+
 }
 
 // Helper function to calculate the angle of collision
@@ -211,15 +252,6 @@ function drawTrack(track) {
 
 function update() {
   cars.forEach(car => {
-    if(!handleCollisions(car, track)) {
-      // Predict the next position of the car
-      const nextX = car.x + car.speed * Math.cos(car.angle);
-      const nextY = car.y + car.speed * Math.sin(car.angle);
-
-      car.x = nextX;
-      car.y = nextY;
-    }
-
     // Update car speed based on friction
     if (car.speed > car.friction) {
       car.speed -= car.friction;
@@ -236,15 +268,11 @@ function update() {
     if (keys.s) {
       car.speed -= car.acceleration;
     }
-    if (keys.a) {
-      car.angle -= car.turnSpeed;
-    }
-    if (keys.d) {
-      car.angle += car.turnSpeed;
-    }
 
     // Limit car speed to maxSpeed
     car.speed = Math.min(Math.max(car.speed, -car.maxSpeed), car.maxSpeed);
+
+    moveCar(car, track);
   });
 
   // Clear canvas and draw cars and track
