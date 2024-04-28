@@ -209,16 +209,6 @@ function moveCar(car, track) {
       car.y = nextY;
       return;
     } 
-  // Handle corner collisions by combining angles
-  if (angles.length > 1) {
-    var combinedAngleX = 0;
-    var combinedAngleY = 0;
-    angles.forEach(function(angle) {
-      combinedAngleX += Math.cos(angle);
-      combinedAngleY += Math.sin(angle);
-    });
-    var combinedAngle = Math.atan2(combinedAngleY, combinedAngleX);
-    angles.push(combinedAngle);
   }
 
   const segments2 = carCollidesSegments(car, track);
