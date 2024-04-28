@@ -112,12 +112,17 @@ function lineIntersects(path, segment) {
 
 function handleCollisions(car, track) {
   // Get the corners of the car
-  const corners = [
-    { x: car.x - car.width / 2, y: car.y - car.height / 2 },
-    { x: car.x + car.width / 2, y: car.y - car.height / 2 },
-    { x: car.x + car.width / 2, y: car.y + car.height / 2 },
-    { x: car.x - car.width / 2, y: car.y + car.height / 2 }
-  ];
+        // Calculate the rotated corners of the car
+        const cosAngle = Math.cos(car.angle);
+        const sinAngle = Math.sin(car.angle);
+        const halfWidth = car.width / 2;
+        const halfHeight = car.height / 2;
+        const corners = [
+            { x: car.x + cosAngle * -halfWidth + sinAngle * -halfHeight, y: car.y + sinAngle * -halfWidth - cosAngle * -halfHeight },
+            { x: car.x + cosAngle * halfWidth + sinAngle * -halfHeight, y: car.y + sinAngle * halfWidth - cosAngle * -halfHeight },
+            { x: car.x + cosAngle * halfWidth + sinAngle * halfHeight, y: car.y + sinAngle * halfWidth - cosAngle * halfHeight },
+            { x: car.x + cosAngle * -halfWidth + sinAngle * halfHeight, y: car.y + sinAngle * -halfWidth - cosAngle * halfHeight }
+        ];
 
   // Check each track segment for collisions with car corners
   for (let i = 0; i < track.length; i++) {
