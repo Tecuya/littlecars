@@ -17,6 +17,7 @@ var trackdefs = {
       [0.66, 0.33, 0.66, 0.66],
       [0.66, 0.66, 0.33, 0.66],
       [0.33, 0.66, 0.33, 0.33],
+      [0.77, 0.77, 0.88, 0.88],
     ],
     start: [0.22, 0.22]
   }
@@ -56,7 +57,7 @@ const car = {
   acceleration: 0.2,
   deceleration: -0.1,
   maxSpeed: 20,
-  friction: 0.05,
+  friction: 0.00005,
   angle: 0,
   turnSpeed: 0.13
 };
@@ -143,12 +144,20 @@ function handleCollisions(car, track) {
         const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
         car.speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
         car.speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
+        car.speed = Math.sqrt(car.speedX ** 2 + car.speedY ** 2);
+        car.angle = Math.atan2(car.speedY, car.speedX);
+
+        const nextX = car.x + car.speed * Math.cos(car.angle);
+        const nextY = car.y + car.speed * Math.sin(car.angle);
+
+        car.x = nextX;
+        car.y = nextY;
+        
         // Push the car away from the wall slightly
         car.x += pushDirection * normal.x * 5; // Displace car by 5 pixels in the correct direction
         car.y += pushDirection * normal.y * 5; // Displace car by 5 pixels in the correct direction
+        
         // Update car's speed and angle based on the reflection vector
-        car.speed = Math.sqrt(car.speedX ** 2 + car.speedY ** 2) * 0.4;
-        car.angle = Math.atan2(car.speedY, car.speedX);
         return true;
       }
     }
@@ -197,14 +206,15 @@ function drawTrack(track) {
 
 function update() {
 
-  handleCollisions(car, track);
+  if(!handleCollisions(car, track)) {
 
-  // Predict the next position of the car
-  const nextX = car.x + car.speed * Math.cos(car.angle);
-  const nextY = car.y + car.speed * Math.sin(car.angle);
+    // Predict the next position of the car
+    const nextX = car.x + car.speed * Math.cos(car.angle);
+    const nextY = car.y + car.speed * Math.sin(car.angle);
 
-  car.x = nextX;
-  car.y = nextY;
+    car.x = nextX;
+    car.y = nextY;
+  }
 
   // Update car speed based on friction
   if (car.speed > car.friction) {
