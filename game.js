@@ -286,4 +286,62 @@ function update() {
 }
 
 // Start the game loop
-update();
+// Mouse event handlers for creating track segments
+let isMouseDown = false;
+let startPoint = { x: 0, y: 0 };
+
+canvas.addEventListener('mousedown', function(event) {
+  isMouseDown = true;
+  startPoint = { x: event.offsetX, y: event.offsetY };
+});
+
+canvas.addEventListener('mousemove', function(event) {
+  if (isMouseDown) {
+    // While the mouse is down, we draw a line from the start point to the current mouse position
+    ctx.beginPath();
+    ctx.moveTo(startPoint.x, startPoint.y);
+    ctx.lineTo(event.offsetX, event.offsetY);
+    ctx.stroke();
+  }
+});
+
+canvas.addEventListener('mouseup', function(event) {
+  if (isMouseDown) {
+    // When the mouse is released, we finalize the track segment
+    const endPoint = { x: event.offsetX, y: event.offsetY };
+    track.push({ x1: startPoint.x, y1: startPoint.y, x2: endPoint.x, y2: endPoint.y });
+    isMouseDown = false;
+  }
+});
+
+// Function to draw all track segments
+function drawAllTracks() {
+  for (const trackName in tracks) {
+    drawTrack(tracks[trackName]);
+  }
+}
+
+// Update the drawTrack function to draw all tracks
+function drawTrack(track) {
+  ctx.beginPath();
+  track.forEach(segment => {
+    ctx.moveTo(segment.x1, segment.y1);
+    ctx.lineTo(segment.x2, segment.y2);
+  });
+  ctx.stroke();
+}
+
+// Update the game loop to draw all tracks
+function update() {
+  // ... existing update code ...
+
+  // Clear canvas and draw all tracks and cars
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawAllTracks();
+  drawCars();
+
+  // Request next frame
+  requestAnimationFrame(update);
+}
+
+update(); // Start the game loop
