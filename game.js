@@ -163,28 +163,22 @@ function moveCar(car, track) {
     angleAdditive = car.turnSpeed;
   }
 
-  // store old position and tentatively set new one
   const lastX = car.x;
   const lastY = car.y;
   const lastAngle = car.angle;
 
-  car.angle += angleAdditive;
-  car.x += car.speed * Math.cos(car.angle);
-  car.y += car.speed * Math.sin(car.angle);
+  const nextAngle = car.angle + angleAdditive;
+  const nextX = car.x + car.speed * Math.cos(car.angle);
+  const nextY = car.y + car.speed * Math.sin(car.angle);
+  
+  const newCollidingSegments = carCollidesSegments({...car, x: nextX, y: nextY, angle: nextAngle}, track);
 
-  // find segments it collides with
-  const newCollidingSegments = carCollidesSegments(car, track);
-
-  // it moved and it doesn't collide with a segment. the movement is
-  // accepted
   if(newCollidingSegments.length == 0) {
+    car.x = nextX;
+    car.y = nextY;
+    car.angle = nextAngle;
     return;
   }
-
-  // movement rejected
-  car.angle = lastAngle;
-  car.x = lastX;
-  car.y = lastY;
 
   const segment4 = carCollidesSegments(car, track);
   if(segment4.length > 0) {
@@ -204,10 +198,19 @@ function moveCar(car, track) {
     angles.push(Math.atan2(speedY, speedX) + backwardsCompensation);
   });
 
-  // TODO this is not right
-  car.angle = average(angles);
+  // go with any valid proposed angle
+  for(var i=0;i<angles.length;i++) {
+    const nextX = car.x + car.speed * Math.cos(angles[i]);
+    const nextY = car.y + car.speed * Math.sin(angles[i]);
+    const segments2 = carCollidesSegments({...car, angle: angles[i], x: nextX, y: nextY}, track);
+    if(segments2.length == 0) {
+      car.angle = angles[i];
+      car.x = nextX;
+      car.y = nextY;
+      return;
+    } 
+  }
 
-  // check for rotation causing collision and if it does, unrotate and stop
   const segments2 = carCollidesSegments(car, track);
   if(segments2.length > 0) {
     alert('oops');
