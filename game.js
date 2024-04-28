@@ -184,17 +184,23 @@ function moveCar(car, track) {
 
   // find good reflection angles
   var angles = [];
+  var sumNormals = { x: 0, y: 0 };
   newCollidingSegments.forEach((segment) => {
-    const backwardsCompensation = car.speed >= 0 ? 0 : Math.PI * -1;
     const normal = { x: -(segment.y2 - segment.y1), y: segment.x2 - segment.x1 };
     const normalLength = Math.sqrt(normal.x ** 2 + normal.y ** 2);
     normal.x /= normalLength;
     normal.y /= normalLength;
-    const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
-    const speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
-    const speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
-    angles.push(Math.atan2(speedY, speedX) + backwardsCompensation);
+    sumNormals.x += normal.x;
+    sumNormals.y += normal.y;
   });
+  const sumNormalsLength = Math.sqrt(sumNormals.x ** 2 + sumNormals.y ** 2);
+  sumNormals.x /= sumNormalsLength;
+  sumNormals.y /= sumNormalsLength;
+  const dotProduct = 2 * (car.speed * Math.cos(car.angle) * sumNormals.x + car.speed * Math.sin(car.angle) * sumNormals.y);
+  const speedX = car.speed * Math.cos(car.angle) - dotProduct * sumNormals.x;
+  const speedY = car.speed * Math.sin(car.angle) - dotProduct * sumNormals.y;
+  const reflectionAngle = Math.atan2(speedY, speedX);
+  angles.push(reflectionAngle);
 
   // go with any proposed angle that produces no collision
   for(var i=0;i<angles.length;i++) {
