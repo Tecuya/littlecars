@@ -314,13 +314,6 @@ canvas.addEventListener('mouseup', function(event) {
   }
 });
 
-// Function to draw all track segments
-function drawAllTracks() {
-  for (const trackName in tracks) {
-    drawTrack(tracks[trackName]);
-  }
-}
-
 // Update the drawTrack function to draw all tracks
 function drawTrack(track) {
   ctx.beginPath();
@@ -329,19 +322,6 @@ function drawTrack(track) {
     ctx.lineTo(segment.x2, segment.y2);
   });
   ctx.stroke();
-}
-
-// Update the game loop to draw all tracks
-function update() {
-  // ... existing update code ...
-
-  // Clear canvas and draw all tracks and cars
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawAllTracks();
-  drawCars();
-
-  // Request next frame
-  requestAnimationFrame(update);
 }
 
 update(); // Start the game loop
