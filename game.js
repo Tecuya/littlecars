@@ -213,8 +213,8 @@ function moveCar(car, track, angleAdditive) {
     const reflectionAngle = Math.atan2(speedY, speedX) + backwardsCompensation;
     const angleDifference = Math.abs(reflectionAngle - lastAngle) % (2 * Math.PI);
     const speedReductionFactor = Math.sin(angleDifference / 2);
-    var newSpeed = car.speed;
-    newSpeed *= (1 - speedReductionFactor);
+    var newSpeed = car.speed * (1 - speedReductionFactor);
+
     angles.push([reflectionAngle,newSpeed]);
   });
 
@@ -274,7 +274,7 @@ function update() {
   cars = cars.filter(
     (car) => {
       if (!car.isHuman) {
-        for(var i=0;i<playerCars.length;i++) { 
+        for(var i=0;i<playerCars.length;i++) {
           if (checkCollision(playerCars[i], car)) {
             return false;
           }
