@@ -53,14 +53,14 @@ carImage2.src = 'car2.png';
 
 // Car properties
 const cars = [];
-for (let i = 0; i < 500; i++) {
+for (let i = cars.length; i < 500; i++) {
 
   var isHuman = false;
   let carX, carY;
-  if(i == 499) {
+  if(i > 480) {
     isHuman = true;
-    carX = car_start[0] - 200;
-    carY = car_start[1];
+    carX = car_start[0] + 900 + (Math.random() * 50 - 5);
+    carY = car_start[1] + (Math.random() * 50 - 5);
   } else {
     carX = car_start[0] + (Math.random() * 10 - 5);
     carY = car_start[1] + (Math.random() * 10 - 5);
@@ -77,7 +77,7 @@ for (let i = 0; i < 500; i++) {
     deceleration: -0.1,
     maxSpeed: 20,
     friction: 0.00005,
-    angle: 0,
+    angle: Math.PI,
     turnSpeed: 0.08,
     isHuman: isHuman,
     image: isHuman ? carImage2 : carImage1
@@ -254,15 +254,19 @@ function drawTrack(track) {
 
 
 function update() {
-  let playerCar = cars.find(car => car.isHuman);
+  let playerCars = cars.filter(car => car.isHuman);
   cars.forEach((car, index) => {
     if (!car.isHuman) {
-      // Check for collision with player car
-      if (checkCollision(playerCar, car)) {
-        // Remove the AI car from the cars array
-        cars.splice(index, 1);
-        return;
-      }
+      playerCars.forEach(
+        (playerCar) => { 
+          // Check for collision with player car
+          if (checkCollision(playerCar, car)) {
+            // Remove the AI car from the cars array
+            cars.splice(index, 1);
+            return;
+          }
+        }
+      );
     }
 
     // Update car speed based on friction
