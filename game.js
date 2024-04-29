@@ -48,7 +48,7 @@ const car_start = [
 
 // Car properties
 const cars = [];
-for (let i = 0; i < 1; i++) {
+for (let i = 0; i < 500; i++) {
   cars.push({
     x: car_start[0] + (Math.random() * 10 - 5),
     y: car_start[1] + (Math.random() * 10 - 5),
@@ -195,20 +195,22 @@ function moveCar(car, track) {
     const reflectionAngle = Math.atan2(speedY, speedX) + backwardsCompensation;
     const angleDifference = Math.abs(reflectionAngle - lastAngle) % (2 * Math.PI);
     const speedReductionFactor = Math.sin(angleDifference / 2);
-    car.speed *= (1 - speedReductionFactor);
-    if (angleDifference > Math.PI / 2) {
-      car.speed = 0; // If the collision angle is more than 90 degrees, stop the car
-    }
-    angles.push(reflectionAngle);
+    var newSpeed = car.speed;
+    newSpeed *= (1 - speedReductionFactor);
+    angles.push([reflectionAngle,newSpeed]);
   });
 
   // go with any proposed angle that produces no collision
   for(var i=0;i<angles.length;i++) {
-    const nextX = car.x + car.speed * Math.cos(angles[i]);
-    const nextY = car.y + car.speed * Math.sin(angles[i]);
-    const segments2 = carCollidesSegments({...car, angle: angles[i], x: nextX, y: nextY}, track);
+    let nextAngle,nextSpeed;
+    [nextAngle, nextSpeed] = angles[i];
+
+    const nextX = car.x + nextSpeed * Math.cos(nextAngle);
+    const nextY = car.y + nextSpeed * Math.sin(nextAngle);
+    const segments2 = carCollidesSegments({...car, angle: nextAngle, x: nextX, y: nextY}, track);
     if(segments2.length == 0) {
-      car.angle = angles[i];
+      car.speed = nextSpeed;
+      car.angle = nextAngle;
       car.x = nextX;
       car.y = nextY;
       return;
