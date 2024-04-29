@@ -49,9 +49,21 @@ const car_start = [
 // Car properties
 const cars = [];
 for (let i = 0; i < 500; i++) {
+
+  var isHuman = false;
+  let carX, carY;
+  if(i == 499) {
+    isHuman = true;
+    carX = car_start[0] - 200;
+    carY = car_start[1];
+  } else {
+    carX = car_start[0] + (Math.random() * 10 - 5);
+    carY = car_start[1] + (Math.random() * 10 - 5);
+  }
+
   cars.push({
-    x: car_start[0] + (Math.random() * 10 - 5),
-    y: car_start[1] + (Math.random() * 10 - 5),
+    x: carX,
+    y: carY,
     width: 50,
     height: 30,
     color: 'blue',
@@ -62,7 +74,7 @@ for (let i = 0; i < 500; i++) {
     friction: 0.00005,
     angle: 0,
     turnSpeed: 0.13,
-    isHuman: (i == 499)
+    isHuman: isHuman
   });
 }
 
@@ -255,7 +267,7 @@ function update() {
       car.speed = 0;
     }
     var angleAdditive = 0;
-    if(car.isHuman) {      
+    if(car.isHuman) {
       // Update car speed and angle based on input
       if (keys.w) {
         car.speed += car.acceleration;
@@ -263,17 +275,17 @@ function update() {
       if (keys.s) {
         car.speed -= car.acceleration;
       }
-      
+
       // Limit car speed to maxSpeed
       car.speed = Math.min(Math.max(car.speed, -car.maxSpeed), car.maxSpeed);
-      
+
       if(keys.a) {
         angleAdditive = car.turnSpeed * -1;
       }
       if(keys.d) {
         angleAdditive = car.turnSpeed;
       }
-      
+
     } else {
 
       // turn left, turn right, or accelerate
@@ -285,9 +297,9 @@ function update() {
       } else {
         car.speed += car.acceleration;
       }
-      
+
     }
-    
+
     moveCar(car, track, angleAdditive);
   });
 
