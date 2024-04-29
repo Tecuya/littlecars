@@ -78,7 +78,7 @@ for (let i = 0; i < 500; i++) {
     maxSpeed: 20,
     friction: 0.00005,
     angle: 0,
-    turnSpeed: 0.13,
+    turnSpeed: 0.08,
     isHuman: isHuman,
     image: isHuman ? carImage2 : carImage1
   });
