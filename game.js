@@ -61,7 +61,8 @@ for (let i = 0; i < 500; i++) {
     maxSpeed: 20,
     friction: 0.00005,
     angle: 0,
-    turnSpeed: 0.13
+    turnSpeed: 0.13,
+    isHuman: (i == 499)
   });
 }
 
@@ -157,19 +158,11 @@ function carCollidesSegments(car, track) {
   return collidingSegments;
 }
 
-function moveCar(car, track) {
+function moveCar(car, track, angleAdditive) {
   // let us know if there was a inter-frame collision (shouldnt be)
   const collidingSegments = carCollidesSegments(car, track);
   if(collidingSegments.length > 0) {
     alert('precollide');
-  }
-
-  var angleAdditive = 0;
-  if(keys.a) {
-    angleAdditive = car.turnSpeed * -1;
-  }
-  if(keys.d) {
-    angleAdditive = car.turnSpeed;
   }
 
   const lastX = car.x;
@@ -261,19 +254,41 @@ function update() {
     } else {
       car.speed = 0;
     }
+    var angleAdditive = 0;
+    if(car.isHuman) {      
+      // Update car speed and angle based on input
+      if (keys.w) {
+        car.speed += car.acceleration;
+      }
+      if (keys.s) {
+        car.speed -= car.acceleration;
+      }
+      
+      // Limit car speed to maxSpeed
+      car.speed = Math.min(Math.max(car.speed, -car.maxSpeed), car.maxSpeed);
+      
+      if(keys.a) {
+        angleAdditive = car.turnSpeed * -1;
+      }
+      if(keys.d) {
+        angleAdditive = car.turnSpeed;
+      }
+      
+    } else {
 
-    // Update car speed and angle based on input
-    if (keys.w) {
-      car.speed += car.acceleration;
+      // turn left, turn right, or accelerate
+      const decision = Math.random()
+      if(decision < 0.33) {
+        angleAdditive = car.turnSpeed;
+      } else if(decision > 0.66) {
+        angleAdditive = car.turnSpeed * -1;
+      } else {
+        car.speed += car.acceleration;
+      }
+      
     }
-    if (keys.s) {
-      car.speed -= car.acceleration;
-    }
-
-    // Limit car speed to maxSpeed
-    car.speed = Math.min(Math.max(car.speed, -car.maxSpeed), car.maxSpeed);
-
-    moveCar(car, track);
+    
+    moveCar(car, track, angleAdditive);
   });
 
   // Clear canvas and draw cars and track
