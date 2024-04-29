@@ -117,8 +117,11 @@ const keys = {
   w: false,
   a: false,
   s: false,
-  d: false
+  d: false,
+  p: false  // Added for pause functionality
 };
+
+let isGamePaused = false;  // Variable to track pause state
 
 function keyHandler(event) {
   const state = event.type === 'keydown';
@@ -126,6 +129,9 @@ function keyHandler(event) {
   if (event.key === 'a') keys.a = state;
   if (event.key === 's') keys.s = state;
   if (event.key === 'd') keys.d = state;
+  if (event.key === 'p' && state) {  // Toggle pause state on keydown of 'p'
+    isGamePaused = !isGamePaused;
+  }
 }
 
 document.addEventListener('keydown', keyHandler);
@@ -247,13 +253,11 @@ function drawTrack(track) {
   ctx.beginPath();
   track.forEach(segment => {
     ctx.moveTo(segment.x1, segment.y1);
-    ctx.lineTo(segment.x2, segment.y2);
-  });
-  ctx.stroke();
-}
-
-
 function update() {
+  if (isGamePaused) {
+    return; // Skip updating the game if it is paused
+  }
+
   // find player cars
   let playerCars = cars.filter(car => car.isHuman);
 
@@ -288,6 +292,12 @@ function update() {
         car.speed += car.acceleration;
       }
       if (keys.s) {
+        car.speed -= car.acceleration;
+      }
+
+      // Limit car speed to maxSpeed
+      car.speed = Math.min(Math.max(car.speed, -car.maxSpeed), car.maxSpeed);
+    }
         car.speed -= car.acceleration;
       }
 
