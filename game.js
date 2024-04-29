@@ -46,6 +46,11 @@ const car_start = [
   trackdefs.rectangle.start[1] * canvas.height
 ];
 
+var carImage1 = new Image();
+carImage1.src = 'car1.png';
+var carImage2 = new Image();
+carImage2.src = 'car2.png';
+
 // Car properties
 const cars = [];
 for (let i = 0; i < 500; i++) {
@@ -64,8 +69,8 @@ for (let i = 0; i < 500; i++) {
   cars.push({
     x: carX,
     y: carY,
-    width: 50,
-    height: 30,
+    width: 105,
+    height: 57,
     color: 'blue',
     speed: 0,
     acceleration: 0.2,
@@ -74,26 +79,18 @@ for (let i = 0; i < 500; i++) {
     friction: 0.00005,
     angle: 0,
     turnSpeed: 0.13,
-    isHuman: isHuman
+    isHuman: isHuman,
+    image: isHuman ? carImage2 : carImage1
   });
 }
 
-var carImage = new Image();
-carImage.src = 'car1.png';
-carImage.onload = function() {
-  // Adjust the car properties to match the image size
-  cars.forEach(car => {
-    car.width = carImage.width;
-    car.height = carImage.height;
-  });
-};
 
 function drawCars() {
   cars.forEach(car => {
     ctx.save();
     ctx.translate(car.x, car.y);
     ctx.rotate(car.angle);
-    ctx.drawImage(carImage, -car.width / 2, -car.height / 2);
+    ctx.drawImage(car.image, -car.width / 2, -car.height / 2);
     ctx.restore();
   });
 }
