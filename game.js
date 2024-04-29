@@ -217,34 +217,19 @@ function moveCar(car, track) {
     }
   }
 
-  // Implementing binary search to find a valid angle
-  console.log('unsticking a car');
-  let lowerBound = 0;
-  let upperBound = 2 * Math.PI;
-  let validAngle = null;
-  while (lowerBound <= upperBound) {
-    const middleAngle = (lowerBound + upperBound) / 2;
-    const nextX = car.x + car.speed * Math.cos(middleAngle);
-    const nextY = car.y + car.speed * Math.sin(middleAngle);
-    if (carCollidesSegments({...car, angle: middleAngle, x: nextX, y: nextY}, track).length == 0) {
-      validAngle = middleAngle;
-      break;
-    } else {
-      // If there's a collision, adjust the search bounds
-      if (carCollidesSegments({...car, angle: lowerBound, x: car.x + car.speed * Math.cos(lowerBound), y: car.y + car.speed * Math.sin(lowerBound)}, track).length == 0) {
-        upperBound = middleAngle;
-      } else {
-        lowerBound = middleAngle;
-      }
+  console.log('resorting to angle search');
+  for(var i=0;i<Math.PI*2;i += 0.01) {
+    const nextAngle = car.angle + i;
+    const nextX = car.x + car.speed * Math.cos(nextAngle);
+    const nextY = car.y + car.speed * Math.sin(nextAngle);
+    const segments2 = carCollidesSegments({...car, angle: nextAngle, x: nextX, y: nextY}, track);
+    if(segments2.length == 0) {
+      car.angle = nextAngle;
+      car.x = nextX;
+      car.y = nextY;
     }
   }
-  if (validAngle !== null) {
-    car.angle = validAngle;
-    car.x += car.speed * Math.cos(validAngle);
-    car.y += car.speed * Math.sin(validAngle);
-  } else {
-    console.log('No valid angle found, car remains stuck');
-  }
+
 }
 
 function drawTrack(track) {
