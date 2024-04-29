@@ -131,6 +131,7 @@ function keyHandler(event) {
   if (event.key === 'd') keys.d = state;
   if (event.key === 'p' && state) {  // Toggle pause state on keydown of 'p'
     isGamePaused = !isGamePaused;
+    console.log('pause',isGamePaused);
   }
 }
 
@@ -253,8 +254,16 @@ function drawTrack(track) {
   ctx.beginPath();
   track.forEach(segment => {
     ctx.moveTo(segment.x1, segment.y1);
+    ctx.lineTo(segment.x2, segment.y2);
+  });
+  ctx.stroke();
+}
+
+
 function update() {
   if (isGamePaused) {
+    drawTrack(track);
+    requestAnimationFrame(update);
     return; // Skip updating the game if it is paused
   }
 
@@ -292,12 +301,6 @@ function update() {
         car.speed += car.acceleration;
       }
       if (keys.s) {
-        car.speed -= car.acceleration;
-      }
-
-      // Limit car speed to maxSpeed
-      car.speed = Math.min(Math.max(car.speed, -car.maxSpeed), car.maxSpeed);
-    }
         car.speed -= car.acceleration;
       }
 
@@ -345,7 +348,6 @@ function checkCollision(car1, car2) {
   );
 }
 
-// Start the game loop
 // Mouse event handlers for creating track segments
 let isMouseDown = false;
 let startPoint = { x: 0, y: 0 };
@@ -353,16 +355,6 @@ let startPoint = { x: 0, y: 0 };
 canvas.addEventListener('mousedown', function(event) {
   isMouseDown = true;
   startPoint = { x: event.offsetX, y: event.offsetY };
-});
-
-canvas.addEventListener('mousemove', function(event) {
-  if (isMouseDown) {
-    // While the mouse is down, we draw a line from the start point to the current mouse position
-    ctx.beginPath();
-    ctx.moveTo(startPoint.x, startPoint.y);
-    ctx.lineTo(event.offsetX, event.offsetY);
-    ctx.stroke();
-  }
 });
 
 canvas.addEventListener('mouseup', function(event) {
