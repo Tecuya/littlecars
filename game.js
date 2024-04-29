@@ -65,13 +65,22 @@ for (let i = 0; i < 500; i++) {
   });
 }
 
+var carImage = new Image();
+carImage.src = 'car1.png';
+carImage.onload = function() {
+  // Adjust the car properties to match the image size
+  cars.forEach(car => {
+    car.width = carImage.width;
+    car.height = carImage.height;
+  });
+};
+
 function drawCars() {
   cars.forEach(car => {
     ctx.save();
     ctx.translate(car.x, car.y);
     ctx.rotate(car.angle);
-    ctx.fillStyle = car.color;
-    ctx.fillRect(-car.width / 2, -car.height / 2, car.width, car.height);
+    ctx.drawImage(carImage, -car.width / 2, -car.height / 2);
     ctx.restore();
   });
 }
