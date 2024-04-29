@@ -254,7 +254,17 @@ function drawTrack(track) {
 
 
 function update() {
-  cars.forEach(car => {
+  let playerCar = cars.find(car => car.isHuman);
+  cars.forEach((car, index) => {
+    if (!car.isHuman) {
+      // Check for collision with player car
+      if (checkCollision(playerCar, car)) {
+        // Remove the AI car from the cars array
+        cars.splice(index, 1);
+        return;
+      }
+    }
+
     // Update car speed based on friction
     if (car.speed > car.friction) {
       car.speed -= car.friction;
@@ -282,10 +292,8 @@ function update() {
       if(keys.d) {
         angleAdditive = car.turnSpeed;
       }
-
     } else {
-
-      // turn left, turn right, or accelerate
+      // AI car behavior
       const decision = Math.random()
       if(decision < 0.33) {
         angleAdditive = car.turnSpeed;
@@ -294,7 +302,6 @@ function update() {
       } else {
         car.speed += car.acceleration;
       }
-
     }
 
     moveCar(car, track, angleAdditive);
@@ -307,6 +314,17 @@ function update() {
 
   // Request next frame
   requestAnimationFrame(update);
+}
+
+// Function to check collision between two cars
+function checkCollision(car1, car2) {
+  // Simple bounding box collision detection
+  return (
+    car1.x < car2.x + car2.width &&
+    car1.x + car1.width > car2.x &&
+    car1.y < car2.y + car2.height &&
+    car1.y + car1.height > car2.y
+  );
 }
 
 // Start the game loop
