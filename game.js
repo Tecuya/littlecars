@@ -52,7 +52,7 @@ var carImage2 = new Image();
 carImage2.src = 'car2.png';
 
 // Car properties
-const cars = [];
+var cars = [];
 for (let i = cars.length; i < 500; i++) {
 
   var isHuman = false;
@@ -254,20 +254,24 @@ function drawTrack(track) {
 
 
 function update() {
+  // find player cars
   let playerCars = cars.filter(car => car.isHuman);
-  cars.forEach((car, index) => {
-    if (!car.isHuman) {
-      playerCars.forEach(
-        (playerCar) => { 
-          // Check for collision with player car
-          if (checkCollision(playerCar, car)) {
-            // Remove the AI car from the cars array
-            cars.splice(index, 1);
-            return;
+
+  // remove colliding cars
+  cars = cars.filter(
+    (car) => {
+      if (!car.isHuman) {
+        for(var i=0;i<playerCars.length;i++) { 
+          if (checkCollision(playerCars[i], car)) {
+            return false;
           }
         }
-      );
+      }
+      return true;
     }
+  );
+
+  cars.forEach((car, index) => {
 
     // Update car speed based on friction
     if (car.speed > car.friction) {
@@ -298,7 +302,7 @@ function update() {
       }
     } else {
       // AI car behavior
-      const decision = Math.random()
+      const decision = Math.random();
       if(decision < 0.33) {
         angleAdditive = car.turnSpeed;
       } else if(decision > 0.66) {
