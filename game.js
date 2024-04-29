@@ -48,7 +48,7 @@ const car_start = [
 
 // Car properties
 const cars = [];
-for (let i = 0; i < 500; i++) {
+for (let i = 0; i < 1; i++) {
   cars.push({
     x: car_start[0] + (Math.random() * 10 - 5),
     y: car_start[1] + (Math.random() * 10 - 5),
@@ -239,9 +239,6 @@ function moveCar(car, track) {
   if (validAngle !== null) {
     car.angle = validAngle;
     car.x += car.speed * Math.cos(validAngle);
-    car.y += car.speed * Math.sin(validAngle);
-  }
-}
     car.y += car.speed * Math.sin(validAngle);
   } else {
     console.log('No valid angle found, car remains stuck');
