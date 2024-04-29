@@ -149,7 +149,6 @@ function carCollidesSegments(car, track) {
 }
 
 function moveCar(car, track) {
-
   // let us know if there was a inter-frame collision (shouldnt be)
   const collidingSegments = carCollidesSegments(car, track);
   if(collidingSegments.length > 0) {
@@ -182,7 +181,7 @@ function moveCar(car, track) {
     return;
   }
 
-  // find good reflection angles
+  // find good reflection angles and calculate speed reduction
   var angles = [];
   newCollidingSegments.forEach((segment) => {
     const backwardsCompensation = car.speed >= 0 ? 0 : Math.PI * -1;
@@ -193,7 +192,14 @@ function moveCar(car, track) {
     const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
     const speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
     const speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
-    angles.push(Math.atan2(speedY, speedX) + backwardsCompensation);
+    const reflectionAngle = Math.atan2(speedY, speedX) + backwardsCompensation;
+    const angleDifference = Math.abs(reflectionAngle - lastAngle) % (2 * Math.PI);
+    const speedReductionFactor = Math.sin(angleDifference / 2);
+    car.speed *= (1 - speedReductionFactor);
+    if (angleDifference > Math.PI / 2) {
+      car.speed = 0; // If the collision angle is more than 90 degrees, stop the car
+    }
+    angles.push(reflectionAngle);
   });
 
   // go with any proposed angle that produces no collision
@@ -233,6 +239,9 @@ function moveCar(car, track) {
   if (validAngle !== null) {
     car.angle = validAngle;
     car.x += car.speed * Math.cos(validAngle);
+    car.y += car.speed * Math.sin(validAngle);
+  }
+}
     car.y += car.speed * Math.sin(validAngle);
   } else {
     console.log('No valid angle found, car remains stuck');
