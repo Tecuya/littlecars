@@ -32,11 +32,11 @@ carImage2.src = 'car2.png';
 
 // Car properties
 var cars = [];
-for (let i = cars.length; i < 400; i++) {
+for (let i = cars.length; i < 2; i++) {
 
   var isHuman = false;
   let carX, carY;
-  if(i == 399) {
+  if(i == 1) {
     isHuman = true;
     carX = car_start[0] + 900;
     carY = car_start[1];
@@ -189,12 +189,20 @@ function moveCar(car, track, angleAdditive) {
     const dotProduct = 2 * (car.speed * Math.cos(car.angle) * normal.x + car.speed * Math.sin(car.angle) * normal.y);
     const speedX = car.speed * Math.cos(car.angle) - dotProduct * normal.x;
     const speedY = car.speed * Math.sin(car.angle) - dotProduct * normal.y;
-    const reflectionAngle = Math.atan2(speedY, speedX) + backwardsCompensation;
-    const angleDifference = Math.abs(reflectionAngle - lastAngle) % (2 * Math.PI);
+    const reflectionAngle = Math.atan2(speedY, speedX) + backwardsCompensation % (2 * Math.PI);
+    const angleDifference = Math.abs(reflectionAngle - lastAngle);
     const speedReductionFactor = Math.sin(angleDifference / 2);
     var newSpeed = car.speed * (1 - speedReductionFactor);
 
-    angles.push([reflectionAngle,newSpeed]);
+    const compensatedLastAngle = (lastAngle + backwardsCompensation) % (Math.PI * 2);
+
+    var angleChange = reflectionAngle - compensatedLastAngle;
+
+    console.log('angle change',compensatedLastAngle,reflectionAngle,angleChange);
+    const newAngle = compensatedLastAngle + ((reflectionAngle - compensatedLastAngle) * 1);
+    
+    angles.push([newAngle,newSpeed]);
+//    angles.push([reflectionAngle,newSpeed]);
   });
 
   // go with any proposed angle that produces no collision
