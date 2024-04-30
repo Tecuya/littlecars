@@ -3,48 +3,23 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // Set the canvas to full screen
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
 
-var trackdefs = {
+var tracks = {
   rectangle: {
     segments: [
-      [0.01, 0.01, 0.99, 0.01],
-      [0.99, 0.01, 0.99, 0.99],
-      [0.99, 0.99, 0.01, 0.99],
-      [0.01, 0.99, 0.01, 0.01],
-      [0.33, 0.33, 0.66, 0.33],
-      [0.66, 0.33, 0.66, 0.66],
-      [0.66, 0.66, 0.33, 0.66],
-      [0.33, 0.66, 0.33, 0.33],
-      [0.77, 0.77, 0.88, 0.88],
+      {x1: 10, y1: 10, x2: 1800, y2: 10},
+      {x1: 1800, y1: 10, x2: 1800, y2: 870},
+      {x1: 1800, y1: 870, x2: 10, y2: 870},
+      {x1: 10, y1: 870, x2: 10, y2: 10},
     ],
-    start: [0.22, 0.22]
+    start: [200, 200]
   }
-}
+};
 
-var tracks = {};
-
-for(const trackName in trackdefs) {
-  tracks[trackName] = [];
-  trackdefs[trackName].segments.forEach((segment) => {
-    tracks[trackName].push(
-      {
-        x1: segment[0] * canvas.width,
-        y1: segment[1] * canvas.height,
-        x2: segment[2] * canvas.width,
-        y2: segment[3] * canvas.height
-      }
-    );
-  });
-}
 
 // Choose the track
-const track = tracks.rectangle;
-const car_start = [
-  trackdefs.rectangle.start[0] * canvas.width,
-  trackdefs.rectangle.start[1] * canvas.height
-];
+const track = tracks.rectangle.segments;
+const car_start = tracks.rectangle.start;
 
 var carImage1 = new Image();
 carImage1.src = 'car1.png';
@@ -53,11 +28,11 @@ carImage2.src = 'car2.png';
 
 // Car properties
 var cars = [];
-for (let i = cars.length; i < 500; i++) {
+for (let i = cars.length; i < 100; i++) {
 
   var isHuman = false;
   let carX, carY;
-  if(i > 480) {
+  if(i > 90) {
     isHuman = true;
     carX = car_start[0] + 900 + (Math.random() * 50 - 5);
     carY = car_start[1] + (Math.random() * 50 - 5);
@@ -178,7 +153,7 @@ function moveCar(car, track, angleAdditive) {
   // let us know if there was a inter-frame collision (shouldnt be)
   const collidingSegments = carCollidesSegments(car, track);
   if(collidingSegments.length > 0) {
-    alert('precollide');
+    console.log('precollide');
   }
 
   const lastX = car.x;

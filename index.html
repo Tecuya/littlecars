@@ -9,14 +9,31 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
+            background: black;
+            color: white;
         }
         canvas {
-            display: block;
+          margin:top;
+          background: white;
+          display: inline-block;
+        }
+        div {
+          text-align: center;
+        }
+        p {
+          margin: 0px;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <script src="game.js"></script>
+  <div>
+    <canvas id="gameCanvas" width=1810 height=880></canvas>
+    <p>
+      WASD - Drive, 
+      P - Pause,
+      Mouse - Draw Walls
+    </p>
+  </div>
+  <script src="game.js"></script>
 </body>
 </html>
